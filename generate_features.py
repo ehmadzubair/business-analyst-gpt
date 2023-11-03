@@ -1,15 +1,9 @@
+from langchain.chains import LLMChain
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts import SystemMessagePromptTemplate, HumanMessagePromptTemplate, ChatPromptTemplate
-from langchain.chains import LLMChain
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
-
-llm = ChatOpenAI(openai_api_key=os.getenv('OPENAI_API_KEY'))
 
 
-def generate_features_list(features):
+def generate_features_list(openai_api_key, features):
     system_message = """Given a list of features, generate an updated feature list with expanded features which \
 includes all the features that are prerequisites, dependencies, or interlinks of the given features."""
 
@@ -27,7 +21,7 @@ includes all the features that are prerequisites, dependencies, or interlinks of
         ]
     )
 
-    chat_model = ChatOpenAI(temperature=0.6, model="gpt-3.5-turbo")
+    chat_model = ChatOpenAI(openai_api_key=openai_api_key, temperature=0.6, model="gpt-3.5-turbo")
 
     llm_chain = LLMChain(prompt=chat_prompt, llm=chat_model, verbose=True)
     response = llm_chain.run(
@@ -39,7 +33,7 @@ includes all the features that are prerequisites, dependencies, or interlinks of
     return response
 
 
-def generate_features_description(problem, features):
+def generate_features_description(openai_api_key, problem, features):
     system_message = """Elaborate on the given FEATURES and sub-features for a URD related to the given problem. Write prerequisites and descriptions, for \
 each feature and sub-feature. Make sure you cover all the FEATURES """
 
@@ -75,7 +69,7 @@ Here is an example output format:
         ]
     )
 
-    chat_model = ChatOpenAI(temperature=0.5, model="gpt-3.5-turbo")
+    chat_model = ChatOpenAI(openai_api_key=openai_api_key, temperature=0.5, model="gpt-3.5-turbo")
 
     llm_chain = LLMChain(prompt=chat_prompt, llm=chat_model, verbose=True)
     response = llm_chain.run(

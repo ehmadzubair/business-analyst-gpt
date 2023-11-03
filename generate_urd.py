@@ -1,15 +1,9 @@
+from langchain.chains import LLMChain
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts import SystemMessagePromptTemplate, HumanMessagePromptTemplate, ChatPromptTemplate
-from langchain.chains import LLMChain
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
-
-llm = ChatOpenAI(openai_api_key=os.getenv('OPENAI_API_KEY'))
 
 
-def generate_user_requirement_document(answers):
+def generate_user_requirement_document(openai_api_key, answers):
     system_message = """Given the information by the user, generate a User Requirement Document (URD). The URD should \
 have a clear problem statement, goals, objectives to accomplish, features, and a conclusion paragraph. Reproduce the \
 features part as it is in the response
@@ -46,7 +40,7 @@ Users: {answer4}
         ]
     )
 
-    chat_model = ChatOpenAI(temperature=0.6, model="gpt-3.5-turbo-16k")
+    chat_model = ChatOpenAI(openai_api_key=openai_api_key, temperature=0.6, model="gpt-3.5-turbo-16k")
 
     llm_chain = LLMChain(prompt=chat_prompt, llm=chat_model, verbose=True)
     response = llm_chain.run(

@@ -7,6 +7,9 @@ from generate_urd import generate_user_requirement_document
 
 
 def main():
+    with st.sidebar:
+        openai_api_key = st.text_input("OpenAI API Key", type="password")
+
     st.title("Generate User Requirements Document and SRS")
 
     # Add URLs to the URD and SRS at the top of the page
@@ -64,7 +67,7 @@ def main():
 
     # Display the text areas for each feature
     st.caption('Try to be as descriptive as possible. Do not worry about structuring the input details. Attemp to add'
-            'an exhaustive list of features that you need.')
+               'an exhaustive list of features that you need.')
     for i in range(st.session_state.num_features):
         feature = st.text_area(
             f"New Feature {i + 1}",
@@ -85,6 +88,11 @@ def main():
         height=60
     )
 
+    if not openai_api_key:
+        st.info("Please add your OpenAI API key to continue.")
+        st.button("Generate URD", disabled=True)
+        st.stop()
+
     platform = []
     if st.button("Generate URD") and all([answer1, answer2, answer3, answer4]):
         if checkbox1:
@@ -100,12 +108,12 @@ def main():
                    "answer4": answer4}
 
         with st.spinner("Refining features..."):
-            pre_req_features_list = generate_features_list(answer3)
-            features_description = generate_features_description(answer1, pre_req_features_list)
+            pre_req_features_list = generate_features_list(openai_api_key, answer3)
+            features_description = generate_features_description(openai_api_key, answer1, pre_req_features_list)
             answers["answer3"] = features_description
 
         with st.spinner("Generating User Requirements Document..."):
-            st.session_state.urd_content = generate_user_requirement_document(answers)
+            st.session_state.urd_content = generate_user_requirement_document(openai_api_key, answers)
 
             st.write(st.session_state.urd_content)
     else:
@@ -117,7 +125,10 @@ def main():
     if "urd_content" in st.session_state:
         if st.button("Generate SRS"):
             with st.spinner("Generating SRS Document..."):
-                srs_content = generate_software_requirement_specification_document(st.session_state.urd_content)
+                srs_content = generate_software_requirement_specification_document(
+                    openai_api_key,
+                    st.session_state.urd_content
+                )
 
                 st.write(srs_content)
 
